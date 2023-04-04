@@ -38,11 +38,22 @@ export default class MyPlugin extends Plugin {
 		});
 		// This adds an editor command that can perform some operation on the current editor instance
 		this.addCommand({
-			id: 'sample-editor-command',
-			name: 'Sample editor command',
+			id: 'today temperature',
+			name: 'Today Temperature',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection('Sample Editor Command');
+				var url = "https://api.open-meteo.com/v1/forecast?latitude=35.69&longitude=139.69&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo"
+				// urlからjsonを取得
+				fetch(url)
+					.then(response => response.json())
+					.then(data => {
+						// 取得したjsonから今日の最高気温を取得
+						var todayMaxTemparature = data.daily.temperature_2m_max[0];
+						// 取得したjsonから今日の最低気温を取得
+						var todayMinTemparature = data.daily.temperature_2m_min[0];
+						var text = '今日の最高気温は' + todayMaxTemparature + '度です。' + '今日の最低気温は' + todayMinTemparature + '度です。'
+						// テキストの最終行に1行追加して、その行にテキストを挿入
+						editor.replaceSelection('\n' + text);
+					});
 			}
 		});
 		// This adds a complex command that can check whether the current state of the app allows execution of the command
