@@ -51,8 +51,8 @@ export default class MyPlugin extends Plugin {
 						// 取得したjsonから今日の最低気温を取得
 						var todayMinTemparature = data.daily.temperature_2m_min[0];
 						var text = '今日の最高気温は' + todayMaxTemparature + '度です。' + '今日の最低気温は' + todayMinTemparature + '度です。'
-						// テキストの最終行に1行追加して、その行にテキストを挿入
-						editor.replaceSelection('\n' + text);
+						// テキストを挿入
+						editor.replaceSelection(text);
 					});
 			}
 		});
