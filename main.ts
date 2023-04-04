@@ -34,18 +34,26 @@ export default class MyPlugin extends Plugin {
 			id: 'open-sample-modal-simple',
 			name: 'Open sample modal (simple)',
 			callback: () => {
-				new SampleModal(this.app).open();
+				new WeatherReportModal(this.app).open();
 			}
 		});
+		
+		// open meteo apiからjsonデータを取得する関数
+		const getOpenMeteoData = async () => {
+			const openMeteoURL = "https://api.open-meteo.com/v1/forecast?latitude=35.689&longitude=139.692&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo"
+			// urlからjsonを取得
+			const response = await fetch(openMeteoURL);
+			const data = await response.json();
+			return data;
+		}
+
 		// This adds an editor command that can perform some operation on the current editor instance
 		this.addCommand({
 			id: 'today temperature',
 			name: 'Today Temperature',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
-				const openMeteoURL = "https://api.open-meteo.com/v1/forecast?latitude=35.689&longitude=139.692&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo"
 				// urlからjsonを取得
-				fetch(openMeteoURL)
-					.then(response => response.json())
+				getOpenMeteoData()
 					.then(data => {
 						// 取得したjsonから今日の最高気温を取得
 						const todayMaxTemperature = data.daily.temperature_2m_max[0];
@@ -76,7 +84,7 @@ export default class MyPlugin extends Plugin {
 					// If checking is true, we're simply "checking" if the command can be run.
 					// If checking is false, then we want to actually perform the operation.
 					if (!checking) {
-						new SampleModal(this.app).open();
+						new WeatherReportModal(this.app).open();
 					}
 
 					// This command will only show up in Command Palette when the check function returns true
@@ -111,7 +119,7 @@ export default class MyPlugin extends Plugin {
 	}
 }
 
-class SampleModal extends Modal {
+class WeatherReportModal extends Modal {
 	constructor(app: App) {
 		super(app);
 	}
