@@ -1,4 +1,5 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { WeatherCode } from 'weathercode';
 
 // Remember to rename these classes and interfaces!
 
@@ -41,16 +42,23 @@ export default class MyPlugin extends Plugin {
 			id: 'today temperature',
 			name: 'Today Temperature',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
-				var url = "https://api.open-meteo.com/v1/forecast?latitude=35.69&longitude=139.69&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo"
+				var openMeteoURL = "https://api.open-meteo.com/v1/forecast?latitude=35.689&longitude=139.692&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo"
 				// urlからjsonを取得
-				fetch(url)
+				fetch(openMeteoURL)
 					.then(response => response.json())
 					.then(data => {
 						// 取得したjsonから今日の最高気温を取得
 						var todayMaxTemparature = data.daily.temperature_2m_max[0];
 						// 取得したjsonから今日の最低気温を取得
 						var todayMinTemparature = data.daily.temperature_2m_min[0];
-						var text = '今日の最高気温は' + todayMaxTemparature + '度です。' + '今日の最低気温は' + todayMinTemparature + '度です。'
+
+						// weathercodeから天気を取得
+						var weatherCode = data.daily.weathercode[0];
+
+						// weatherCodeをWeatherCode型に変換
+						var weatherCodeString = WeatherCode[weatherCode];
+
+						var text = '今日の天気は' + weatherCodeString + 'です。' + '今日の最高気温は' + todayMaxTemparature + '度です。' + '今日の最低気温は' + todayMinTemparature + '度です。'
 						// テキストを挿入
 						editor.replaceSelection(text);
 					});
