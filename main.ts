@@ -139,7 +139,7 @@ class WeatherReportSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
+		containerEl.createEl('h2', {text: 'Weather API'});
 
 		new Setting(containerEl)
 			.setName('Setting #1')
