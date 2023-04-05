@@ -31,8 +31,8 @@ export default class MyPlugin extends Plugin {
 
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
+			id: 'open-weather-report-modal',
+			name: 'Open Weather Report modal',
 			callback: () => {
 				new WeatherReportModal(this.app).open();
 			}
@@ -151,15 +151,16 @@ class WeatherReportSettingTab extends PluginSettingTab {
 		containerEl.createEl('h2', {text: 'Weather API'});
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
+			.setName('利用するAPI')
+			.setDesc('利用するAPIの選択')
 			.addDropdown(dropdown => dropdown
-				.addOption('OpenMeteo', 'Option A')
+				.addOption('OpenMeteo', 'OpenMeteo API')
 				.addOption('b', 'Option B')
 				.setValue('OpenMeteo').onChange(async (value) => {
 				console.log('Secret: ' + value);
 				this.plugin.settings.mySetting = value;
 				await this.plugin.saveSettings();
 			}));
+
 	}
 }
