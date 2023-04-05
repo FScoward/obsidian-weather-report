@@ -153,13 +153,13 @@ class WeatherReportSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName('Setting #1')
 			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
+			.addDropdown(dropdown => dropdown
+				.addOption('OpenMeteo', 'Option A')
+				.addOption('b', 'Option B')
+				.setValue('OpenMeteo').onChange(async (value) => {
+				console.log('Secret: ' + value);
+				this.plugin.settings.mySetting = value;
+				await this.plugin.saveSettings();
+			}));
 	}
 }
