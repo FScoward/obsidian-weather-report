@@ -3,16 +3,16 @@ import { WMO_WeatherInterpretationCodes } from 'weathercode';
 
 // Remember to rename these classes and interfaces!
 
-interface MyPluginSettings {
-	mySetting: string;
+interface WeatherReportPluginSettings {
+	api: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
+const DEFAULT_SETTINGS: WeatherReportPluginSettings = {
+	api: 'OpenMeteo'
 }
 
 export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+	settings: WeatherReportPluginSettings;
 
 	async onload() {
 		await this.loadSettings();
@@ -155,9 +155,10 @@ class WeatherReportSettingTab extends PluginSettingTab {
 			.setDesc('利用するAPIの選択')
 			.addDropdown(dropdown => dropdown
 				.addOption('OpenMeteo', 'OpenMeteo API')
+				.addOption('Tsukumijima', 'Tsukumijima API')
 				.setValue('OpenMeteo').onChange(async (value) => {
 				console.log('Secret: ' + value);
-				this.plugin.settings.mySetting = value;
+				this.plugin.settings.api = value;
 				await this.plugin.saveSettings();
 			}));
 
