@@ -1,4 +1,4 @@
-export const WeatherCode = {
+export const WMO_WeatherInterpretationCodes = {
     0: 'Clear Sky',
     1: 'Mainly Clear',
     2: 'Partly Cloudy',
@@ -28,4 +28,4 @@ export const WeatherCode = {
     96: 'Thunderstorm with Slight',
     99: 'Thunderstorm with Heavy hail',
 } as const;
-type WeatherCode = typeof WeatherCode[keyof typeof WeatherCode];
+type WeatherCode = typeof WMO_WeatherInterpretationCodes[keyof typeof WMO_WeatherInterpretationCodes];

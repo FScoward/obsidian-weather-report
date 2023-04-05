@@ -1,5 +1,5 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
-import { WeatherCode } from 'weathercode';
+import { WMO_WeatherInterpretationCodes } from 'weathercode';
 
 // Remember to rename these classes and interfaces!
 
@@ -64,7 +64,7 @@ export default class MyPlugin extends Plugin {
 						const weatherCode = data.daily.weathercode[0];
 
 						// weatherCodeをWeatherCode型に変換
-						const weatherCodeString = WeatherCode[weatherCode];
+						const weatherCodeString = WMO_WeatherInterpretationCodes[weatherCode];
 
 						const text = '今日の天気は' + weatherCodeString + 'です。' + '最高気温は' + todayMaxTemperature + '度です。' + '最低気温は' + todayMinTemperature + '度です。'
 
@@ -155,7 +155,6 @@ class WeatherReportSettingTab extends PluginSettingTab {
 			.setDesc('利用するAPIの選択')
 			.addDropdown(dropdown => dropdown
 				.addOption('OpenMeteo', 'OpenMeteo API')
-				.addOption('b', 'Option B')
 				.setValue('OpenMeteo').onChange(async (value) => {
 				console.log('Secret: ' + value);
 				this.plugin.settings.mySetting = value;
