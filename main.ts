@@ -106,11 +106,8 @@ export default class MyPlugin extends Plugin {
 						break;
 					case WEATHER_REPORT_API.Tsukumijima: {
 						const tsukumijimaAPI = new Tsukumijima();
-						const city = {
-							prefTitle: "東京都",
-							cityTitle: "東京",
-							cityCode: "130010",
-						} as City;
+						// 設定からcityを取得
+						const city = this.tsukumijimaSettings.city;
 						tsukumijimaAPI.getTempText(city).then((text) => {
 							// テキストを挿入
 							editor.replaceSelection(text);
