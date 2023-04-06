@@ -43,7 +43,7 @@ export default class MyPlugin extends Plugin {
 				new WeatherReportModal(this.app).open();
 			}
 		});
-		
+
 		// open meteo apiからjsonデータを取得する関数
 		const getOpenMeteoData = async () => {
 			const openMeteoURL = "https://api.open-meteo.com/v1/forecast?latitude=35.689&longitude=139.692&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo"
@@ -61,7 +61,7 @@ export default class MyPlugin extends Plugin {
 				// 保存された設定の読み出し
 				const settings = this.settings;
 
-				switch(settings.api) {
+				switch (settings.api) {
 					case WEATHER_REPORT_API.OpenMeteo:
 						// urlからjsonを取得
 						getOpenMeteoData()
@@ -79,7 +79,7 @@ export default class MyPlugin extends Plugin {
 						break;
 					case WEATHER_REPORT_API.Tsukumijima:
 						const tsukumijimaAPI = new Tsukumijima();
-						const city = { prefTitle: '東京都', cityTitle: '東京', cityCode: '130010'} as City;
+						const city = { prefTitle: '東京都', cityTitle: '東京', cityCode: '130010' } as City;
 						tsukumijimaAPI.getTempText(city).then(text => {
 							// テキストを挿入
 							editor.replaceSelection(text);
@@ -140,12 +140,12 @@ class WeatherReportModal extends Modal {
 	}
 
 	onOpen() {
-		const {contentEl} = this;
+		const { contentEl } = this;
 		contentEl.setText('Woah!');
 	}
 
 	onClose() {
-		const {contentEl} = this;
+		const { contentEl } = this;
 		contentEl.empty();
 	}
 }
@@ -159,11 +159,11 @@ class WeatherReportSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
-		const {containerEl} = this;
+		const { containerEl } = this;
 
 		containerEl.empty();
 
-		containerEl.createEl('h2', {text: 'Weather API'});
+		containerEl.createEl('h2', { text: 'Weather API' });
 
 		// 設定の読み込み
 		const settings = this.plugin.settings;
@@ -176,11 +176,33 @@ class WeatherReportSettingTab extends PluginSettingTab {
 				.addOption(WEATHER_REPORT_API.Tsukumijima, 'Tsukumijima API')
 				.setValue(settings.api)
 				.onChange(async (value) => {
-				console.log('Secret: ' + value);
-				// valueをWEATHER_REPORT_API型に変換
-				this.plugin.settings.api = WEATHER_REPORT_API[value as keyof typeof WEATHER_REPORT_API];
-				await this.plugin.saveSettings();
-			}));
+					console.log('Secret: ' + value);
+					// valueをWEATHER_REPORT_API型に変換
+					this.plugin.settings.api = WEATHER_REPORT_API[value as keyof typeof WEATHER_REPORT_API];
+					await this.plugin.saveSettings();
+				}));
+
+		containerEl.createEl('h2', { text: '都市の設定' });
+
+		const citiesKeyValue = Tsukumijima.CITIES
+			// 都道府県名と都市名を結合して都市コードをキーにしたオブジェクトを作成
+			// 例: { '130010': '東京都 - 東京' }
+			.reduce((acc, city) => {
+				acc[city.cityCode] = city.prefTitle + ' - ' + city.cityTitle;
+				return acc;
+			}, {} as Record<string, string>)
+
+		console.log(Tsukumijima.CITIES.sort((a, b) => a.cityCode.localeCompare(b.cityCode)));
+
+		new Setting(containerEl)
+			.setName('都市')
+			.setDesc('都市の設定')
+			// Tsukumijima.CITIESをdropdownに設定
+			// 都市コードをキーにして昇順ソート
+			// 例: {'011000': '北海道 - 札幌' }, { '130010': '東京都 - 東京' }, { '130020': '東京都 - 大島町' }, ...
+			
+
+			;
 
 	}
 }
