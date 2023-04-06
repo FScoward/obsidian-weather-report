@@ -1,7 +1,69 @@
-interface City {
+export interface City {
     prefTitle: string;
     cityTitle: string;
     cityCode: string;
+}
+
+interface Weather {
+    title: string;
+    link: string;
+    description: {
+        text: string;
+    };
+    forecasts: {
+        date: string;
+        dateLabel: string;
+        telop: string;
+        detail: {
+            weather: string;
+            wind: string;
+            wave: string;
+        };
+        temperature: {
+            min: {
+                celsius: string | null;
+                fahrenheit: string | null;
+            };
+            max: {
+                celsius: string | null;
+                fahrenheit: string | null;
+            };
+        };
+        chanceOfRain: {
+            T00_06: string;
+            T06_12: string;
+            T12_18: string;
+            T18_24: string;
+        };
+        image: {
+            title: string;
+            url: string;
+            width: number;
+            height: number;
+        };
+    }[];
+    location: {
+        area: string;
+        prefecture: string;
+        district: string;
+        city: string;
+    };
+    copyright: {
+        title: string;
+        link: string;
+        image: {
+            title: string;
+            link: string;
+            url: string;
+            width: number;
+            height: number;
+        };
+        provider: {
+            link: string;
+            name: string;
+            note: string;
+        }[];
+    };
 }
 
 export class Tsukumijima {
@@ -136,8 +198,23 @@ export class Tsukumijima {
     ];
 
     // リクエストurlの生成
-    requestUrl(city: City) {
+    private requestUrl(city: City) {
         return 'https://weather.tsukumijima.net/api/forecast?city=' + city.cityCode;
     }
 
+    private async getWeatherData(city: City): Promise<Weather> {
+        const url = this.requestUrl(city);
+        const response = await fetch(url);
+        const json = await response.json();
+        return json as Weather;
+    }
+
+    // 最高気温と最低気温を表示するテキストを返す関数
+    async getTempText(city: City): Promise<string> {
+        return this.getWeatherData(city).then((weatherJson) => {
+            const tempText = city.cityTitle + 'の最高気温は' + weatherJson.forecasts[0].temperature.max.celsius + '度、最低気温は' + weatherJson.forecasts[0].temperature.min.celsius + '度です。';
+            return tempText;
+        });
+    }
+    
 }

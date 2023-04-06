@@ -1,5 +1,5 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
-import { Tsukumijima } from 'tsukumijima/tsukumijima-settings';
+import { City, Tsukumijima } from 'tsukumijima/tsukumijima-settings';
 import { WMO_WeatherInterpretationCodes } from 'weathercode';
 
 interface WeatherReportPluginSettings {
@@ -78,21 +78,12 @@ export default class MyPlugin extends Plugin {
 							});
 						break;
 					case WEATHER_REPORT_API.Tsukumijima:
-						const tsukumijimaURL = new Tsukumijima().requestUrl({ prefTitle: '東京都', cityTitle: '東京', cityCode: '130010' });
-
-						fetch(tsukumijimaURL)
-							.then(response => response.json())
-							.then(data => {
-								// 今日の最高気温を取得
-								const todayMaxTemperature = data.forecasts[0].temperature.max.celsius;
-								// 今日の最低気温を取得
-								const todayMinTemperature = data.forecasts[0].temperature.min.celsius;
-
-								const text = '今日の最高気温は' + todayMaxTemperature + '度です。' + '最低気温は' + todayMinTemperature + '度です。'	
-	
-								// テキストを挿入
-								editor.replaceSelection(text);
-							});
+						const tsukumijimaAPI = new Tsukumijima();
+						const city = { prefTitle: '東京都', cityTitle: '東京', cityCode: '130010'} as City;
+						tsukumijimaAPI.getTempText(city).then(text => {
+							// テキストを挿入
+							editor.replaceSelection(text);
+						});
 						break;
 				}
 			}
