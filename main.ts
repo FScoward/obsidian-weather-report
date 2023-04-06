@@ -18,6 +18,10 @@ import {
 interface WeatherReportPluginSettings {
 	api: WEATHER_REPORT_API;
 }
+interface OpenMeteoSettings {
+	latitude: number;
+	longitude: number;
+}
 
 // weathrer report api の定義
 const WEATHER_REPORT_API = {
@@ -31,8 +35,14 @@ const DEFAULT_SETTINGS: WeatherReportPluginSettings = {
 	api: WEATHER_REPORT_API.OpenMeteo,
 };
 
+const DEFAULT_OPEN_METEO_SETTINGS: OpenMeteoSettings = {
+	latitude: 35.689,
+	longitude: 139.692,
+};
+
 export default class MyPlugin extends Plugin {
 	weatherReportPluginSettings: WeatherReportPluginSettings;
+	openMeteoSettings: OpenMeteoSettings;
 	tsukumijimaSettings: TsukumijimaSettings;
 
 	async onload() {
@@ -161,6 +171,11 @@ export default class MyPlugin extends Plugin {
 			DEFAULT_SETTINGS,
 			await this.loadData()
 		);
+		this.openMeteoSettings = Object.assign(
+			{},
+			DEFAULT_OPEN_METEO_SETTINGS,
+			await this.loadData()
+		);
 		this.tsukumijimaSettings = Object.assign(
 			{},
 			DEFAULT_TSUKUMIJIMA_SETTINGS,
@@ -200,13 +215,15 @@ class WeatherReportSettingTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 
+		// 設定の読み込み
+		const weatherReportPluginSettings =
+			this.plugin.weatherReportPluginSettings;
+		const openMeteoSettings = this.plugin.openMeteoSettings;
+		const tsukumijimaSettings = this.plugin.tsukumijimaSettings;
+
 		containerEl.empty();
 
 		containerEl.createEl("h2", { text: "Weather API" });
-
-		// 設定の読み込み
-		const settings = this.plugin.weatherReportPluginSettings;
-		const tsukumijimaSettings = this.plugin.tsukumijimaSettings;
 
 		new Setting(containerEl)
 			.setName("利用するAPI")
@@ -218,7 +235,7 @@ class WeatherReportSettingTab extends PluginSettingTab {
 						WEATHER_REPORT_API.Tsukumijima,
 						"Tsukumijima API"
 					)
-					.setValue(settings.api)
+					.setValue(weatherReportPluginSettings.api)
 					.onChange(async (value) => {
 						console.log("Secret: " + value);
 						// valueをWEATHER_REPORT_API型に変換
@@ -229,6 +246,34 @@ class WeatherReportSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			);
+
+		containerEl.createEl("h2", { text: "Open Meteo API" });
+
+		// 緯度、軽度の設定
+		new Setting(containerEl)
+			.setName("緯度")
+			.setDesc("緯度を入力してください")
+			.addText((text) => {
+				text.setPlaceholder("緯度")
+					.setValue(openMeteoSettings.latitude.toString())
+					.onChange(async (value) => {
+						this.plugin.openMeteoSettings.latitude =
+							parseFloat(value);
+						await this.plugin.saveSettings();
+					});
+			});
+		new Setting(containerEl)
+			.setName("経度")
+			.setDesc("経度を入力してください")
+			.addText((text) => {
+				text.setPlaceholder("経度")
+					.setValue(openMeteoSettings.longitude.toString())
+					.onChange(async (value) => {
+						this.plugin.openMeteoSettings.longitude =
+							parseFloat(value);
+						await this.plugin.saveSettings();
+					});
+			});
 
 		containerEl.createEl("h1", { text: "Tsukumijima APIの設定" });
 		containerEl.createEl("h2", { text: "都市の設定" });
