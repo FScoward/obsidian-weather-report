@@ -133,5 +133,11 @@ class Tsukumijima {
         { prefTitle: '沖縄県', cityTitle: '那覇', cityCode: '460010' },
         { prefTitle: '沖縄県', cityTitle: '名護', cityCode: '460020' },
         { prefTitle: '沖縄県', cityTitle: '久米島', cityCode: '460030'}
-            ]
+    ];
+
+    // リクエストurlの生成
+    requestUrl(city: City) {
+        return 'https://weather.tsukumijima.net/api/forecast?city=' + city.cityCode;
+    }
+
 }
