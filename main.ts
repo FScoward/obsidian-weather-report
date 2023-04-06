@@ -233,6 +233,7 @@ class WeatherReportSettingTab extends PluginSettingTab {
 					})
 			);
 
+		containerEl.createEl("h1", { text: "Tsukumijima APIの設定" });
 		containerEl.createEl("h2", { text: "都市の設定" });
 
 		const citiesKeyValue = Tsukumijima.CITIES
