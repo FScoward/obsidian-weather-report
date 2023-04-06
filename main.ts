@@ -1,5 +1,5 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
-import { City, Tsukumijima } from 'tsukumijima/tsukumijima-settings';
+import { City, DEFAULT_TSUKUMIJIMA_SETTINGS, Tsukumijima, TsukumijimaSettings } from 'tsukumijima/tsukumijima-settings';
 import { WMO_WeatherInterpretationCodes } from 'weathercode';
 
 interface WeatherReportPluginSettings {
@@ -18,7 +18,8 @@ const DEFAULT_SETTINGS: WeatherReportPluginSettings = {
 }
 
 export default class MyPlugin extends Plugin {
-	settings: WeatherReportPluginSettings;
+	weatherReportPluginSettings: WeatherReportPluginSettings;
+	tsukumijimaSettings: TsukumijimaSettings;
 
 	async onload() {
 		await this.loadSettings();
@@ -59,7 +60,7 @@ export default class MyPlugin extends Plugin {
 			name: 'Today Temperature',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				// 保存された設定の読み出し
-				const settings = this.settings;
+				const settings = this.weatherReportPluginSettings;
 
 				switch (settings.api) {
 					case WEATHER_REPORT_API.OpenMeteo:
@@ -126,11 +127,12 @@ export default class MyPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.weatherReportPluginSettings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.tsukumijimaSettings = Object.assign({}, DEFAULT_TSUKUMIJIMA_SETTINGS, await this.loadData());
 	}
 
 	async saveSettings() {
-		await this.saveData(this.settings);
+		await this.saveData(this.weatherReportPluginSettings);
 	}
 }
 
@@ -166,7 +168,8 @@ class WeatherReportSettingTab extends PluginSettingTab {
 		containerEl.createEl('h2', { text: 'Weather API' });
 
 		// 設定の読み込み
-		const settings = this.plugin.settings;
+		const settings = this.plugin.weatherReportPluginSettings;
+		const tsukumijimaSettings = this.plugin.tsukumijimaSettings;
 
 		new Setting(containerEl)
 			.setName('利用するAPI')
@@ -178,7 +181,7 @@ class WeatherReportSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					console.log('Secret: ' + value);
 					// valueをWEATHER_REPORT_API型に変換
-					this.plugin.settings.api = WEATHER_REPORT_API[value as keyof typeof WEATHER_REPORT_API];
+					this.plugin.weatherReportPluginSettings.api = WEATHER_REPORT_API[value as keyof typeof WEATHER_REPORT_API];
 					await this.plugin.saveSettings();
 				}));
 
@@ -200,9 +203,15 @@ class WeatherReportSettingTab extends PluginSettingTab {
 			// Tsukumijima.CITIESをdropdownに設定
 			// 都市コードをキーにして昇順ソート
 			// 例: {'011000': '北海道 - 札幌' }, { '130010': '東京都 - 東京' }, { '130020': '東京都 - 大島町' }, ...
-			
-
-			;
+			.addDropdown(dropdown => dropdown
+				.addOptions(citiesKeyValue)
+				.setValue(tsukumijimaSettings.city.cityCode)
+				.onChange(async (value) => {
+					console.log('Secret: ' + value);
+					// valueを都市コード型に変換
+					this.plugin.tsukumijimaSettings.city = Tsukumijima.CITIES.find(city => city.cityCode === value) as City;
+					await this.plugin.saveSettings();
+				}));
 
 	}
 }

@@ -1,3 +1,13 @@
+export interface TsukumijimaSettings {
+    city: City
+}
+export const DEFAULT_TSUKUMIJIMA_SETTINGS: TsukumijimaSettings = {
+    city: {
+        prefTitle: '東京都',
+        cityTitle: '東京',
+        cityCode: '130010'
+    }
+}
 export interface City {
     prefTitle: string;
     cityTitle: string;
