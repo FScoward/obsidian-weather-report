@@ -1,14 +1,20 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { Tsukumijima } from 'tsukumijima/tsukumijima-settings';
 import { WMO_WeatherInterpretationCodes } from 'weathercode';
 
-// Remember to rename these classes and interfaces!
-
 interface WeatherReportPluginSettings {
-	api: string;
+	api: WEATHER_REPORT_API;
 }
 
+// weathrer report api の定義
+const WEATHER_REPORT_API = {
+	OpenMeteo: 'OpenMeteo',
+	Tsukumijima: 'Tsukumijima'
+} as const;
+type WEATHER_REPORT_API = typeof WEATHER_REPORT_API[keyof typeof WEATHER_REPORT_API];
+
 const DEFAULT_SETTINGS: WeatherReportPluginSettings = {
-	api: 'OpenMeteo'
+	api: WEATHER_REPORT_API.OpenMeteo
 }
 
 export default class MyPlugin extends Plugin {
@@ -52,25 +58,43 @@ export default class MyPlugin extends Plugin {
 			id: 'today temperature',
 			name: 'Today Temperature',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
-				// urlからjsonを取得
-				getOpenMeteoData()
-					.then(data => {
-						// 取得したjsonから今日の最高気温を取得
-						const todayMaxTemperature = data.daily.temperature_2m_max[0];
-						// 取得したjsonから今日の最低気温を取得
-						const todayMinTemperature = data.daily.temperature_2m_min[0];
+				// 保存された設定の読み出し
+				const settings = this.settings;
 
-						// weathercodeから天気を取得
-						const weatherCode = data.daily.weathercode[0];
+				switch(settings.api) {
+					case WEATHER_REPORT_API.OpenMeteo:
+						// urlからjsonを取得
+						getOpenMeteoData()
+							.then(data => {
+								// 取得したjsonから今日の最高気温を取得
+								const todayMaxTemperature = data.daily.temperature_2m_max[0];
+								// 取得したjsonから今日の最低気温を取得
+								const todayMinTemperature = data.daily.temperature_2m_min[0];
 
-						// weatherCodeをWeatherCode型に変換
-						const weatherCodeString = WMO_WeatherInterpretationCodes[weatherCode];
+								const text = '今日の最高気温は' + todayMaxTemperature + '度です。' + '最低気温は' + todayMinTemperature + '度です。'
 
-						const text = '今日の天気は' + weatherCodeString + 'です。' + '最高気温は' + todayMaxTemperature + '度です。' + '最低気温は' + todayMinTemperature + '度です。'
+								// テキストを挿入
+								editor.replaceSelection(text);
+							});
+						break;
+					case WEATHER_REPORT_API.Tsukumijima:
+						const tsukumijimaURL = new Tsukumijima().requestUrl({ prefTitle: '東京都', cityTitle: '東京', cityCode: '130010' });
 
-						// テキストを挿入
-						editor.replaceSelection(text);
-					});
+						fetch(tsukumijimaURL)
+							.then(response => response.json())
+							.then(data => {
+								// 今日の最高気温を取得
+								const todayMaxTemperature = data.forecasts[0].temperature.max.celsius;
+								// 今日の最低気温を取得
+								const todayMinTemperature = data.forecasts[0].temperature.min.celsius;
+
+								const text = '今日の最高気温は' + todayMaxTemperature + '度です。' + '最低気温は' + todayMinTemperature + '度です。'	
+	
+								// テキストを挿入
+								editor.replaceSelection(text);
+							});
+						break;
+				}
 			}
 		});
 		// This adds a complex command that can check whether the current state of the app allows execution of the command
@@ -150,15 +174,20 @@ class WeatherReportSettingTab extends PluginSettingTab {
 
 		containerEl.createEl('h2', {text: 'Weather API'});
 
+		// 設定の読み込み
+		const settings = this.plugin.settings;
+
 		new Setting(containerEl)
 			.setName('利用するAPI')
 			.setDesc('利用するAPIの選択')
 			.addDropdown(dropdown => dropdown
-				.addOption('OpenMeteo', 'OpenMeteo API')
-				.addOption('Tsukumijima', 'Tsukumijima API')
-				.setValue('OpenMeteo').onChange(async (value) => {
+				.addOption(WEATHER_REPORT_API.OpenMeteo, 'OpenMeteo API')
+				.addOption(WEATHER_REPORT_API.Tsukumijima, 'Tsukumijima API')
+				.setValue(settings.api)
+				.onChange(async (value) => {
 				console.log('Secret: ' + value);
-				this.plugin.settings.api = value;
+				// valueをWEATHER_REPORT_API型に変換
+				this.plugin.settings.api = WEATHER_REPORT_API[value as keyof typeof WEATHER_REPORT_API];
 				await this.plugin.saveSettings();
 			}));
 

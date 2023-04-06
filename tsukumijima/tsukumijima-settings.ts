@@ -4,8 +4,8 @@ interface City {
     cityCode: string;
 }
 
-class Tsukumijima {
-    public static readonly BASE_URL: string = 'https://weather.tsukumijima.net/api/forecast';
+export class Tsukumijima {
+    private static readonly BASE_URL: string = 'https://weather.tsukumijima.net/api/forecast';
     /**
      * https://weather.tsukumijima.net/primary_area.xml を参考にして,
      * City(
