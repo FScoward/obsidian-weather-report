@@ -1,4 +1,8 @@
 import {
+	DEFAULT_OPEN_METEO_SETTINGS,
+	OpenMeteoSettings,
+} from "settings/open-meteo/OpenMeteoSettings";
+import {
 	App,
 	Editor,
 	MarkdownView,
@@ -9,36 +13,16 @@ import {
 	Setting,
 } from "obsidian";
 import {
+	DEFAULT_SETTINGS,
+	WEATHER_REPORT_API,
+	WeatherReportPluginSettings,
+} from "settings/WeatherReportPluginSettings";
+import {
 	City,
 	DEFAULT_TSUKUMIJIMA_SETTINGS,
 	Tsukumijima,
 	TsukumijimaSettings,
 } from "tsukumijima/tsukumijima-settings";
-
-interface WeatherReportPluginSettings {
-	api: WEATHER_REPORT_API;
-}
-interface OpenMeteoSettings {
-	latitude: number;
-	longitude: number;
-}
-
-// weathrer report api の定義
-const WEATHER_REPORT_API = {
-	OpenMeteo: "OpenMeteo",
-	Tsukumijima: "Tsukumijima",
-} as const;
-type WEATHER_REPORT_API =
-	typeof WEATHER_REPORT_API[keyof typeof WEATHER_REPORT_API];
-
-const DEFAULT_SETTINGS: WeatherReportPluginSettings = {
-	api: WEATHER_REPORT_API.OpenMeteo,
-};
-
-const DEFAULT_OPEN_METEO_SETTINGS: OpenMeteoSettings = {
-	latitude: 35.689,
-	longitude: 139.692,
-};
 
 export default class MyPlugin extends Plugin {
 	weatherReportPluginSettings: WeatherReportPluginSettings;
