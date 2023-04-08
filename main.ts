@@ -22,7 +22,7 @@ import {
 	DEFAULT_TSUKUMIJIMA_SETTINGS,
 	Tsukumijima,
 	TsukumijimaSettings,
-} from "tsukumijima/tsukumijima-settings";
+} from "settings/tsukumijima/tsukumijima-settings";
 
 export default class MyPlugin extends Plugin {
 	weatherReportPluginSettings: WeatherReportPluginSettings;
