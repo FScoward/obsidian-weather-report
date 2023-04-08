@@ -6,6 +6,7 @@ export interface WeatherReportPluginSettings {
 export const WEATHER_REPORT_API = {
 	OpenMeteo: "OpenMeteo",
 	Tsukumijima: "Tsukumijima",
+	JapaneseMeteorologicalAgency: "JapaneseMeteorologicalAgency",
 } as const;
 export type WEATHER_REPORT_API =
 	typeof WEATHER_REPORT_API[keyof typeof WEATHER_REPORT_API];

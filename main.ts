@@ -108,6 +108,11 @@ export default class MyPlugin extends Plugin {
 						});
 						break;
 					}
+					case WEATHER_REPORT_API.JapaneseMeteorologicalAgency: {
+						const text = "未実装";
+						editor.replaceSelection(text);
+						break;
+					}
 				}
 			},
 		});
@@ -218,6 +223,10 @@ class WeatherReportSettingTab extends PluginSettingTab {
 					.addOption(
 						WEATHER_REPORT_API.Tsukumijima,
 						"Tsukumijima API"
+					)
+					.addOption(
+						WEATHER_REPORT_API.JapaneseMeteorologicalAgency,
+						"気象庁 API"
 					)
 					.setValue(weatherReportPluginSettings.api)
 					.onChange(async (value) => {
