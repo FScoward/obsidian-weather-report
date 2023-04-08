@@ -23,11 +23,18 @@ import {
 	Tsukumijima,
 	TsukumijimaSettings,
 } from "settings/tsukumijima/tsukumijima-settings";
+import {
+	DEFAULT_JAPANESE_METEOROLOGICAL_AGENCY_SETTINGS,
+	JMA_ForecastArea,
+	JMA_ForecastAreas,
+	JapaneseMeteorologicalAgencySettings,
+} from "settings/japanese-meteorological-agency/japanese-meteorological-agency-settings";
 
 export default class MyPlugin extends Plugin {
 	weatherReportPluginSettings: WeatherReportPluginSettings;
 	openMeteoSettings: OpenMeteoSettings;
 	tsukumijimaSettings: TsukumijimaSettings;
+	japaneseMeteorologicalAgencySettings: JapaneseMeteorologicalAgencySettings;
 
 	async onload() {
 		await this.loadSettings();
@@ -170,6 +177,11 @@ export default class MyPlugin extends Plugin {
 			DEFAULT_TSUKUMIJIMA_SETTINGS,
 			await this.loadData()
 		);
+		this.japaneseMeteorologicalAgencySettings = Object.assign(
+			{},
+			DEFAULT_JAPANESE_METEOROLOGICAL_AGENCY_SETTINGS,
+			await this.loadData()
+		);
 	}
 
 	async saveSettings() {
@@ -209,6 +221,8 @@ class WeatherReportSettingTab extends PluginSettingTab {
 			this.plugin.weatherReportPluginSettings;
 		const openMeteoSettings = this.plugin.openMeteoSettings;
 		const tsukumijimaSettings = this.plugin.tsukumijimaSettings;
+		const japaneseMeteorologicalAgencySettings =
+			this.plugin.japaneseMeteorologicalAgencySettings;
 
 		containerEl.empty();
 
@@ -294,6 +308,40 @@ class WeatherReportSettingTab extends PluginSettingTab {
 							Tsukumijima.CITIES.find(
 								(city) => city.cityCode === value
 							) as City;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		/** === 気象庁API === */
+		containerEl.createEl("h1", { text: "気象庁 APIの設定" });
+		containerEl.createEl("h2", { text: "都市の設定" });
+
+		const forecastAreasKeyValueJMA = JMA_ForecastAreas.reduce(
+			(acc, forecastArea) => {
+				acc[forecastArea.forecastAreaCode] =
+					forecastArea.forecastAreaName;
+				return acc;
+			},
+			{} as Record<string, string>
+		);
+
+		new Setting(containerEl)
+			.setName("都市")
+			.setDesc("都市の設定")
+			// JMA_ForecastAreasをdropdownに設定
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOptions(forecastAreasKeyValueJMA)
+					.setValue(
+						japaneseMeteorologicalAgencySettings.jmaForecastArea
+							.forecastAreaCode
+					)
+					.onChange(async (value) => {
+						this.plugin.japaneseMeteorologicalAgencySettings.jmaForecastArea =
+							JMA_ForecastAreas.find(
+								(forecastArea) =>
+									forecastArea.forecastAreaCode === value
+							) as JMA_ForecastArea;
 						await this.plugin.saveSettings();
 					})
 			);
