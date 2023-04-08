@@ -27,6 +27,7 @@ import {
 	DEFAULT_JAPANESE_METEOROLOGICAL_AGENCY_SETTINGS,
 	JMA_ForecastArea,
 	JMA_ForecastAreas,
+	JapaneseMeteorologicalAgency,
 	JapaneseMeteorologicalAgencySettings,
 } from "settings/japanese-meteorological-agency/japanese-meteorological-agency-settings";
 
@@ -116,8 +117,9 @@ export default class MyPlugin extends Plugin {
 						break;
 					}
 					case WEATHER_REPORT_API.JapaneseMeteorologicalAgency: {
-						const text = "未実装";
-						editor.replaceSelection(text);
+						console.log("気象庁API");
+						const jma = new JapaneseMeteorologicalAgency();
+						console.log("===", jma.jmaAreaDefinition);
 						break;
 					}
 				}
@@ -316,14 +318,15 @@ class WeatherReportSettingTab extends PluginSettingTab {
 		containerEl.createEl("h1", { text: "気象庁 APIの設定" });
 		containerEl.createEl("h2", { text: "都市の設定" });
 
-		const forecastAreasKeyValueJMA = JMA_ForecastAreas.reduce(
-			(acc, forecastArea) => {
-				acc[forecastArea.forecastAreaCode] =
-					forecastArea.forecastAreaName;
-				return acc;
-			},
-			{} as Record<string, string>
-		);
+		const jma = new JapaneseMeteorologicalAgency();
+		const keys = Object.keys(jma.jmaAreaDefinition.offices);
+		// officesは位ンデックスシグネチャなので、
+		// 以下のようにキーを取得して、
+		// そのキーを使ってオブジェクトの値を取得する
+		const forecastAreasKeyValueJMA = keys.reduce((acc, key) => {
+			acc[key] = jma.jmaAreaDefinition.offices[key].name;
+			return acc;
+		}, {} as Record<string, string>);
 
 		new Setting(containerEl)
 			.setName("都市")
@@ -333,15 +336,13 @@ class WeatherReportSettingTab extends PluginSettingTab {
 				dropdown
 					.addOptions(forecastAreasKeyValueJMA)
 					.setValue(
-						japaneseMeteorologicalAgencySettings.jmaForecastArea
-							.forecastAreaCode
+						Object.keys(
+							japaneseMeteorologicalAgencySettings.jmaArea
+						)[0]
 					)
 					.onChange(async (value) => {
-						this.plugin.japaneseMeteorologicalAgencySettings.jmaForecastArea =
-							JMA_ForecastAreas.find(
-								(forecastArea) =>
-									forecastArea.forecastAreaCode === value
-							) as JMA_ForecastArea;
+						this.plugin.japaneseMeteorologicalAgencySettings.jmaArea =
+							{ [value]: jma.jmaAreaDefinition.offices[value] };
 						await this.plugin.saveSettings();
 					})
 			);
