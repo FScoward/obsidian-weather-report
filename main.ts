@@ -25,8 +25,6 @@ import {
 } from "settings/tsukumijima/tsukumijima-settings";
 import {
 	DEFAULT_JAPANESE_METEOROLOGICAL_AGENCY_SETTINGS,
-	JMA_ForecastArea,
-	JMA_ForecastAreas,
 	JapaneseMeteorologicalAgency,
 	JapaneseMeteorologicalAgencySettings,
 } from "settings/japanese-meteorological-agency/japanese-meteorological-agency-settings";
@@ -117,9 +115,13 @@ export default class MyPlugin extends Plugin {
 						break;
 					}
 					case WEATHER_REPORT_API.JapaneseMeteorologicalAgency: {
-						console.log("気象庁API");
 						const jma = new JapaneseMeteorologicalAgency();
-						console.log("===", jma.jmaAreaDefinition);
+						jma.getWeatherText(
+							this.japaneseMeteorologicalAgencySettings.jmaArea
+						).then((text) => {
+							// テキストを挿入
+							editor.replaceSelection(text);
+						});
 						break;
 					}
 				}
