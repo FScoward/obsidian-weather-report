@@ -89,10 +89,16 @@ export class JapaneseMeteorologicalAgency {
 	public async getWeatherText(jmaArea: JmaArea): Promise<string> {
 		const response = this.request(jmaArea);
 		return response.then((value) => {
+			const area = value[0].timeSeries[2].areas[0].area.name;
 			const minTemp = value[0].timeSeries[2].areas[0].temps[0];
 			const maxTemp = value[0].timeSeries[2].areas[0].temps[1];
 			return (
-				"最高気温は" + maxTemp + "度、最低気温は" + minTemp + "度です。"
+				area +
+				"の最高気温は" +
+				maxTemp +
+				"度、最低気温は" +
+				minTemp +
+				"度です。"
 			);
 		});
 	}
